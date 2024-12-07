@@ -2,6 +2,7 @@ const adminModel = require("../models/adminModel");
 const { responseReturn } = require("../utils/response");
 const bcrpty = require("bcrypt");
 const { createToken } = require("../utils/tokenCreate");
+const sellerModel = require("../models/sellerModel");
 
 class authControllers {
   admin_login = async (req, res) => {
@@ -32,6 +33,28 @@ class authControllers {
     }
   };
   //End Method
+
+  seller_register = async (req, res) => {
+    const { email, name, password } = req.body;
+    try {
+      const getUser = await sellerModel.findOne({ email });
+      if (getUser) {
+        responseReturn(res, 404, { error: "Email Already Exit" });
+      } else {
+        const seller = await sellerModel.create({
+          name,
+          email,
+          password: await bcrpty.hash(password, 10),
+          method: "manually",
+          shopInfo: {},
+        });
+        console.log(seller);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   getUser = async (req, res) => {
     const { id, role } = req;
     try {
